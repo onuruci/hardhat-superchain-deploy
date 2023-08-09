@@ -1,13 +1,8 @@
-# Sample Hardhat Project
+# Superchain Deployer
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+This is a hardhat plugin foer easily deploying smart contracts to same addresses on superchain
 
-Try running some of the following tasks:
+It aims to make it easier to develop on OP Stack and build for superchain easier.
 
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat run scripts/deploy.js
-```
+Being built for https://ethglobal.com/events/superhack
+
