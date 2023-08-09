@@ -1,30 +1,13 @@
 require("@nomicfoundation/hardhat-toolbox");
 const fs = require('fs');
+const path = require('path');
 const prompt = require('prompt-sync')({sigint: true});
 const chalk = require("chalk");
+const { promisify } = require('util');
+const exec = promisify(require('child_process').exec);
+const { clearLastLine, clearLines } = require("./utils/lineManipulation");
+const { task } = require("hardhat/config");
 
-task("envtest", async (args, hre) => {
-  console.log(chalk.blue('Hello world!'));
-});
-
-const clearLastLine = () => {
-  process.stdout.moveCursor(0, -1) // up one line
-  process.stdout.clearLine(1) // from cursor to end
-  process.stdout.moveCursor(0, 1)
-}
-
-const clearLines = (lineCount) => {
-  process.stdout.moveCursor(0, -1* lineCount) // up one line
-
-  process.stdout.clearScreenDown()
-
-  process.stdout.moveCursor(0, lineCount)
-}
-
-const readline = require('readline').createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
 
 task("generate-deployer", async (args, hre) => {
   console.log(chalk.blue('Generating a deployer wallet!\n'));
@@ -32,13 +15,13 @@ task("generate-deployer", async (args, hre) => {
 
   console.log(chalk.white.bgRed.bold(deployer.mnemonic.phrase), "\n");
   console.log("Take this 12 word phrase in a secure place and enter a password!");
-  console.log(chalk.bold("After you enter a password phrase will be deleted !"));
+  console.log(chalk.bold("After you enter a password phrase will be deleted !\n"));
 
-  let pressEnter =prompt("Did you save it the phrase (press Enter)");
+  let pressEnter =prompt("Did you save it the phrase (press Enter)    ");
   clearLastLine()
-  let password = prompt("Enter a password: ");
 
-  clearLines(6);
+  let password = prompt("Enter a password: ");
+  clearLines(7);
 
   let encryptedWallet = await deployer.encrypt(password);
 
@@ -46,14 +29,31 @@ task("generate-deployer", async (args, hre) => {
 
   let name = prompt("Give a name to deployer: ");
 
-  // here should check if such name exists and not write to file
-  // this might delete wallets which is not wanted
+  // here should check if such name exists and not write to file on top of it
+  // this might delete wallets, which is not a wanted functionality
 
-  fs.writeFile(`${name}.json`, encryptedWallet, 'utf8', () => {
+  fs.writeFile(`./wallets/${name}.json`, encryptedWallet, 'utf8', () => {
     console.log(chalk.bold("Deployer wallet generated successfully!"));
   });
-
 });
+
+task("superchain-deploy", "Deploy smart contracts to superchain")
+  .addParam("path", "Path to deploy script")
+  .setAction(async (args, hre) => {
+    const filePath = args.path;
+
+    const absolutePath = path.resolve(filePath);
+
+    try {
+       const { stdout, stderr } = await exec(`node ${filePath}`);
+
+       console.log(stderr);
+       console.log(stdout);
+    } catch (err) {
+
+    }
+  }
+);
 
 
 

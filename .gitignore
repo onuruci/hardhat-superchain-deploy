@@ -20,4 +20,5 @@ typechain-types
 # Hardhat files
 cache
 artifacts
+wallets/
 
