@@ -1,15 +1,12 @@
 require("@nomicfoundation/hardhat-toolbox");
+require("dotenv").config();
 const fs = require('fs');
 const path = require('path');
-const { createProvider } = require("hardhat/internal/core/providers/construction");
 const {extendEnvironment, subtask, extendConfig} = require('hardhat/config');
 const prompt = require('prompt-sync')({sigint: true});
 const chalk = require("chalk");
-const { promisify } = require('util');
-const exec = promisify(require('child_process').exec);
 const { clearLastLine, clearLines } = require("./utils/lineManipulation");
 const { task } = require("hardhat/config");
-const { ProviderWrapper } = require('hardhat/plugins')
 
 
 task("generate-deployer", async (args, hre) => {
@@ -40,6 +37,16 @@ task("generate-deployer", async (args, hre) => {
   });
 });
 
+extendEnvironment((hre) => {
+  let networks = hre.config.superchain.networks;
+  let deployer = hre.config.superchain.deployerAccount;
+
+  for(let i=0; i < networks.length; i++) {
+    hre.config.networks.fuji.accounts = [deployer]
+  }
+
+});
+
 
 task("superchain-deploy", "Deploy smart contracts to superchain")
   .addParam("path", "Path to deploy script")
@@ -47,9 +54,6 @@ task("superchain-deploy", "Deploy smart contracts to superchain")
   .setAction(async (args, hre) => {
 
     try {require("hardhat-change-network");
-
-      hre.config.networks.fuji.accounts = [""]
-
       console.log(hre.network);
 
       hre.hardhatArguments.network = "fuji";
@@ -67,7 +71,7 @@ task("superchain-deploy", "Deploy smart contracts to superchain")
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-  defaultNetwork: "fuji",
+  defaultNetwork: "hardhat",
   networks: {
     hardhat: {
     },
@@ -77,6 +81,11 @@ module.exports = {
     fuji: {
       url: "https://api.avax-test.network/ext/bc/C/rpc",
     }
+  },
+  superchain: {
+    networks: ["fuji", "hardhat"],
+    deployerAccount: process.env.DEPLOYER_ACCOUNT,
+    funderAccount: process.env.FUNDER_ACCOUNT
   },
   solidity: "0.8.19",
 };
