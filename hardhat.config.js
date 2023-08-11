@@ -115,7 +115,7 @@ task("fund-deployer", "Fund the deployer account with native tokens")
 
             let tx = {
               to: deployer.address,
-              value: hre.ethers.parseEther(fundToSend)
+              value: hre.ethers.parseEther("0.5")
             }
 
             let res = await funderConnected.sendTransaction(tx);

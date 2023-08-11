@@ -15,9 +15,7 @@ async function main() {
 
   //console.log(hre.network);
 
-  const lock = await hre.ethers.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
-  });
+  const lock = await hre.ethers.deployContract("Lock", [unlockTime]);
 
   console.log(
     `Lock with ${hre.ethers.formatEther(
