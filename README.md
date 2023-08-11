@@ -46,6 +46,14 @@ npx hardhat get-private-key --account <path to wallet>
 npx hardhat fund-deployer
 ```
 
+### check-balances
+
+`check-balances` checks balances of deployer and funder account and logs if required amount of balance they have.
+
+```
+npx hardhat check-balances
+```
+
 ### superchain-deploy
 
 `superchain-deploy` gets deployment script path as arguement. Runs the deployment script on each selected chain with deployer account.
