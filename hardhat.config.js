@@ -10,6 +10,16 @@ const { task } = require("hardhat/config");
 
 const gasAmount = 427000;
 
+extendEnvironment((hre) => {
+  let networks = hre.config.superchain.networks;
+  let deployer = hre.config.superchain.deployerAccount;
+
+  for(let i=0; i < networks.length; i++) {
+    hre.config.networks[networks[i]].accounts = [deployer]
+  }
+
+});
+
 task("generate-deployer", async (args, hre) => {
   console.log(chalk.blue('Generating a deployer wallet!\n'));
   let deployer = hre.ethers.Wallet.createRandom();
@@ -41,25 +51,10 @@ task("generate-deployer", async (args, hre) => {
   });
 });
 
-extendEnvironment((hre) => {
-  let networks = hre.config.superchain.networks;
-  let deployer = hre.config.superchain.deployerAccount;
-
-  for(let i=0; i < networks.length; i++) {
-    hre.config.networks.fuji.accounts = [deployer]
-  }
-
-});
-
 
 task("fund-deployer", "Fund the deployer account with native tokens")
   .setAction(async (args, hre) => {
-
     try {
-      //console.log(hre.network);
-
-      // get gas prices
-
       let networks = hre.config.superchain.networks;
       let deployer = new hre.ethers.Wallet(hre.config.superchain.deployerAccount);
       let funder = new hre.ethers.Wallet(hre.config.superchain.funderAccount);
@@ -81,8 +76,8 @@ task("fund-deployer", "Fund the deployer account with native tokens")
         let fundToSend = hre.ethers.formatEther((gas * BigInt(gasAmount)).toString());
 
         console.log(chalk.bold("Required amount of native tokens to deploy contract:  "), chalk.bold.green(fundToSend));
-        //deployerBalance >= fundToSend
-        if(false) {
+
+        if(deployerBalance >= fundToSend) {
           console.log("Balance for deployer address: ", chalk.bold(deployer.address), " ", chalk.bold.green(deployerBalance));
 
           console.log(chalk.bold.green("Deployer has enough amount of tokens passing to next network\n"));
@@ -112,11 +107,6 @@ task("fund-deployer", "Fund the deployer account with native tokens")
       }
 
       console.log(chalk.bold.green("Funding phase is completed continue with deploying"));
-
-      //hre.hardhatArguments.network = "hardhat";
-
-      await hre.run("run", { script: args.path, network: hre.config.networks.hardhat });
-
     } catch(err) {
       console.log(err);
       return;
@@ -128,7 +118,23 @@ task("superchain-deploy", "Deploy smart contracts to superchain")
   .addParam("path", "Path to deploy script")
   //.addParam("deployer", "Path to deployer json file")
   .setAction(async (args, hre) => {
-    console.log(chalk.bold.green("Deployment phase"));
+    console.log(chalk.bold("-->Deployment phase"));
+
+    let networks = hre.config.superchain.networks;
+
+    for(let i=0; i < networks.length; i++) {
+      console.log("Deploying for network: ", chalk.bold.green(networks[i]));
+      console.log("Deployment script logs");
+      console.log("-->");
+      console.log("-->\n\n");
+      hre.hardhatArguments.network = networks[i];
+      await hre.run("run", { script: args.path });
+
+      console.log("\n\n");
+      console.log(chalk.bold.green("Deployed successfully to ", networks[i]));
+      console.log(chalk.bold.green("\nPassing to next network"));
+    }
+    
   })
 
 
