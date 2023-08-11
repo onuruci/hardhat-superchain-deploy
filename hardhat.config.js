@@ -135,10 +135,61 @@ task("fund-deployer", "Fund the deployer account with native tokens")
   }
 );
 
+task("check-balances", "Check balances of deployer and funder on wanted chains")
+  .setAction(async (args, hre) => {
+    try {
+      let networks = hre.config.superchain.networks;
+      let deployer = new hre.ethers.Wallet(hre.config.superchain.deployerAccount);
+      let funder = new hre.ethers.Wallet(hre.config.superchain.funderAccount);
+
+      let funded = true;
+
+      console.log(chalk.bold("Checking balances\n"));
+
+      for(let i=0; i < networks.length ; i++) {
+
+        console.log(chalk.bold("-->Checking for balances on network "), chalk.bold.green(networks[i]));
+
+        let provider = new hre.ethers.JsonRpcProvider(hre.config.networks[networks[i]].url);
+
+        let deployerBalance = hre.ethers.formatEther(await provider.getBalance(deployer.address));
+        let funderBalance = hre.ethers.formatEther(await provider.getBalance(funder.address));
+
+        let gas =  (await provider.getFeeData()).gasPrice;
+
+        let fundToSend = hre.ethers.formatEther((gas * BigInt(gasAmount)).toString());
+
+        console.log("Balance for deployer address: ", chalk.bold(deployer.address), " ", chalk.bold.blue(deployerBalance));
+
+        console.log("Balance for funder address:  ", chalk.bold(funder.address), " ", chalk.bold.green(funderBalance),"\n");
+
+        console.log(chalk.bold("Required amount of native tokens to deploy contract:  "), chalk.bold.green(fundToSend));
+
+        if(deployerBalance >= fundToSend) {
+          console.log(chalk.bold.green("Deployer has enough amount of funds"));
+        } else {
+          console.log(chalk.bold.red("Deployer does not have enough amount of tokens, fund it!\n\n"));
+          funded = false;
+        }
+      }
+
+      return funded;
+    } catch(err) {
+      console.log(err);
+      return false;
+    }
+  });
+
 task("superchain-deploy", "Deploy smart contracts to superchain")
   .addParam("path", "Path to deploy script")
   //.addParam("deployer", "Path to deployer json file")
   .setAction(async (args, hre) => {
+    let balancesRes = await hre.run("check-balances");
+
+    if(!balancesRes) {
+      return;
+    }
+
     console.log(chalk.bold("-->Deployment phase"));
 
     let networks = hre.config.superchain.networks;
