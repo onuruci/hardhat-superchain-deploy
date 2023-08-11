@@ -8,6 +8,7 @@ const chalk = require("chalk");
 const { clearLastLine, clearLines } = require("./utils/lineManipulation");
 const { task } = require("hardhat/config");
 
+const gasAmount = 427000;
 
 task("generate-deployer", async (args, hre) => {
   console.log(chalk.blue('Generating a deployer wallet!\n'));
@@ -53,10 +54,35 @@ task("superchain-deploy", "Deploy smart contracts to superchain")
   .addParam("deployer", "Path to deployer json file")
   .setAction(async (args, hre) => {
 
-    try {require("hardhat-change-network");
-      console.log(hre.network);
+    try {
+      //console.log(hre.network);
 
-      hre.hardhatArguments.network = "fuji";
+      // get gas prices
+
+      let networks = hre.config.superchain.networks;
+      let deployer = new hre.ethers.Wallet(hre.config.superchain.deployerAccount);
+      let funder = new hre.ethers.Wallet(hre.config.superchain.funderAccount);
+
+      console.log(deployer);
+
+      console.log(funder);
+
+      for(let i=0; i < networks.length ; i++) {
+
+        let provider = new hre.ethers.JsonRpcProvider(hre.config.networks[networks[i]].url);
+        let deployerBalance = await provider.getBalance(deployer.address);
+        let funderBalance = await hre.ethers.formatEther(await provider.getBalance(funder.address));
+
+        let gas =  (await provider.getFeeData()).gasPrice;
+
+        let fundToSend = await hre.ethers.formatEther((gas * BigInt(gasAmount)).toString());
+
+        console.log(fundToSend);
+
+        console.log(balance);
+      }
+
+      //hre.hardhatArguments.network = "hardhat";
 
       await hre.run("run", { script: args.path, network: hre.config.networks.hardhat });
 
@@ -83,7 +109,7 @@ module.exports = {
     }
   },
   superchain: {
-    networks: ["fuji", "hardhat"],
+    networks: ["fuji"],
     deployerAccount: process.env.DEPLOYER_ACCOUNT,
     funderAccount: process.env.FUNDER_ACCOUNT
   },
