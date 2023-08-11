@@ -74,11 +74,19 @@ task("get-private-key", "Get private key of account")
 
 
 task("fund-deployer", "Fund the deployer account with native tokens")
+  .addParam("contractName", "Name of the contract to be deployed")
+  .addOptionalVariadicPositionalParam("constructorArgs", "Constructor arguements of the contract")
   .setAction(async (args, hre) => {
     try {
       let networks = hre.config.superchain.networks;
       let deployer = new hre.ethers.Wallet(hre.config.superchain.deployerAccount);
       let funder = new hre.ethers.Wallet(hre.config.superchain.funderAccount);
+
+      // Calculate gas for deployment
+      let contract = await hre.ethers.getContractFactory(args.contractName);
+      let data = (await contract.getDeployTransaction(...args.constructorArgs)).data;
+
+      const estimatedGas = await ethers.provider.estimateGas({ data: data });
 
       console.log(chalk.bold("Funding the deployer account\n"));
 
@@ -94,7 +102,9 @@ task("fund-deployer", "Fund the deployer account with native tokens")
 
         let gas =  (await provider.getFeeData()).gasPrice;
 
-        let fundToSend = hre.ethers.formatEther((gas * BigInt(gasAmount)).toString());
+        console.log(chalk.bold.green("Gas price:  ", gas.toString()));
+
+        let fundToSend = hre.ethers.formatEther((gas * BigInt(estimatedGas) * BigInt(2)).toString());
 
         console.log(chalk.bold("Required amount of native tokens to deploy contract:  "), chalk.bold.green(fundToSend));
 
@@ -115,7 +125,7 @@ task("fund-deployer", "Fund the deployer account with native tokens")
 
             let tx = {
               to: deployer.address,
-              value: hre.ethers.parseEther("0.5")
+              value: hre.ethers.parseEther(fundToSend.toString())
             }
 
             let res = await funderConnected.sendTransaction(tx);
