@@ -239,10 +239,19 @@ module.exports = {
     },
     goerli: {
       url: "https://eth-goerli.g.alchemy.com/v2/olvyiXDSdK2fqK3CgEpJg4VUvaw4nQ48"
+    },
+    optimismGoerli: {
+      url: "https://goerli.optimism.io"
+    },
+    baseGoerli: {
+      url: "https://goerli.base.org"
+    },
+    modeSepolia: {
+      url: "https://sepolia.mode.network/"
     }
   },
   superchain: {
-    networks: ["fuji", "goerli"],
+    networks: ["optimismGoerli", "baseGoerli"],
     deployerAccount: process.env.DEPLOYER_ACCOUNT,
     funderAccount: process.env.FUNDER_ACCOUNT
   },
