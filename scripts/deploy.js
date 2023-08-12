@@ -9,13 +9,15 @@ const hre = require("hardhat");
 async function main() {
   console.log("Hello");
   const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
+  const unlockTime =  1691983464;
+
+  const feeData = await hre.ethers.provider.getFeeData();
 
   const lockedAmount = hre.ethers.parseEther("0.001");
 
   //console.log(hre.network);
 
-  const lock = await hre.ethers.deployContract("Lock", [unlockTime]);
+  const lock = await hre.ethers.deployContract("Lock", [unlockTime], {gasPrice: feeData.maxFeePerGas});
 
   console.log(
     `Lock with ${hre.ethers.formatEther(

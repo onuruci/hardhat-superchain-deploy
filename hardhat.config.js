@@ -100,7 +100,13 @@ task("fund-deployer", "Fund the deployer account with native tokens")
         let deployerBalance = hre.ethers.formatEther(await provider.getBalance(deployer.address));
         let funderBalance = hre.ethers.formatEther(await provider.getBalance(funder.address));
 
-        let gas =  (await provider.getFeeData()).gasPrice;
+
+        let feeData = await provider.getFeeData();
+
+        let maxGas = feeData.maxFeePerGas;
+        let tip = feeData.maxPriorityFeePerGas;
+
+        let gas = maxGas + tip;
 
         console.log(chalk.bold.green("Gas price:  ", gas.toString()));
 
@@ -192,7 +198,6 @@ task("check-balances", "Check balances of deployer and funder on wanted chains")
 
 task("superchain-deploy", "Deploy smart contracts to superchain")
   .addParam("path", "Path to deploy script")
-  //.addParam("deployer", "Path to deployer json file")
   .setAction(async (args, hre) => {
     let balancesRes = await hre.run("check-balances");
 
