@@ -7,6 +7,7 @@ const prompt = require('prompt-sync')({sigint: true});
 const chalk = require("chalk");
 const { clearLastLine, clearLines } = require("./utils/lineManipulation");
 const { task } = require("hardhat/config");
+const execSync = require('child_process').execSync;
 
 const gasAmount = 427000;
 
@@ -224,6 +225,27 @@ task("superchain-deploy", "Deploy smart contracts to superchain")
     
   })
 
+task("superchain-verify", "Verify contracts on deployed networks")
+  .addParam("address", "Address of the deployed contract")
+  .addOptionalVariadicPositionalParam("constructorArgs", "Constructor arguements of the contract")
+  .setAction(async (args, hre) => {
+    let networks = hre.config.superchain.networks;
+
+    for(let i=0; i < networks.length; i++) {
+      console.log("Verifiying for network: ", chalk.bold.green(networks[i]));
+      console.log("-->");
+      console.log("-->\n\n");
+      hre.hardhatArguments.network = networks[i];
+
+      let res = execSync(`npx hardhat verify --network ${networks[i]} ${args.address} ${args.constructorArgs}`);
+      var enc = new TextDecoder("utf-8");
+
+      console.log(enc.decode(res));
+
+      console.log("\n\n");
+    }
+  });
+
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -254,6 +276,14 @@ module.exports = {
     networks: ["optimismGoerli", "baseGoerli"],
     deployerAccount: process.env.DEPLOYER_ACCOUNT,
     funderAccount: process.env.FUNDER_ACCOUNT
+  },
+  etherscan: {
+    apiKey: {
+      optimisticGoerli: process.env.OPTIMISM_API,
+      baseGoerli: process.env.BASE_API,
+      avalancheFujiTestnet: process.env.FUJI_API,
+      goerli: process.env.GOERLI_API
+    }
   },
   solidity: "0.8.19",
 };
