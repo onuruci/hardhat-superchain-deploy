@@ -55,7 +55,7 @@ This License Agreement (the "Agreement") is entered into by and between **@0xcha
 
 - Any revenue, profit, or financial gain derived from the Repository or its products shall be equally split between the co-owners.
 - All financial transactions and distributions shall be transparent and documented.
-- Any revenue or gains derived from the repository prior to the date of this agreement will be treated as part of the equal revenue-sharing provisions unless otherwise mutually agreed in writing.
+- Any revenue or gains derived from the repository prior to the date of this agreement will be treated as part of the equal revenue-sharing provisions.
 
 ## 13. Force Majeure
 
@@ -63,7 +63,7 @@ This License Agreement (the "Agreement") is entered into by and between **@0xcha
 
 ## 14. Notices
 
-- Notices and communications regarding this Agreement shall be delivered via email to the addresses provided by each co-owner. The email addresses shall be stored in a separate file within the repository, specifically under contact-info.md, or in another mutually agreed-upon file.
+- Notices and communications regarding this Agreement shall be delivered via email to the addresses provided by each co-owner. The email addresses shall be stored in a separate file within the repository, specifically under contact-info.md, or in another mutually agreed-upon file.All notices and communications regarding this Agreement shall be delivered via the email addresses associated with the GitHub accounts of the co-owners (@0xchandra and @onuruci). These email addresses are linked to the respective GitHub profiles and will be used for all formal communications. Both co-owners agree to keep their GitHub-associated email addresses current and updated.
 
 ## 15. Signatures
 
