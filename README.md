@@ -1,9 +1,3 @@
-# Contact me:
-
-uci.onur@gmail.com
-
-0x0b16d12d68AaE11FD6E3290d1c1f8C4D58633352
-
 # hardhat-superchain-deployer
 
 Hardhat plugin for deploying contracts to same addresses on EVM chains. Being built for superchain to make development easier on OP stack. This is a https://ethglobal.com/events/superhack hackathon project.
